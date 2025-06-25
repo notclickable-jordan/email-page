@@ -1,0 +1,33 @@
+{
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		".tscache": true,
+		"node_modules": true,
+		".npm": true,
+		".hugo_build.lock": true,
+		"static/css/index.css": true
+	},
+	"editor.fontSize": 15,
+	"terminal.integrated.fontSize": 15,
+	"workbench.tree.renderIndentGuides": "none",
+	"git.autorefresh": true,
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"emmet.showExpandedAbbreviation": "never",
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[dockerignore]": {
+		"editor.formatOnSave": false
+	},
+	"files.associations": {
+		".dockerignore": "dockerignore"
+	}
+}
