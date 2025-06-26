@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
+import { applyTemplate, generatePageId } from "./helpers";
 
 const app = express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -94,28 +94,6 @@ try {
 // Middleware
 app.use(bodyParser.json());
 
-// Helper to generate hash-based IDs for filenames
-function generatePageId(): string {
-	// Create a string with current date and a random value to ensure uniqueness
-	const now = new Date();
-	const uniqueString = now.toISOString() + Math.random().toString();
-
-	// Generate SHA-256 hash
-	const hash = crypto.createHash("sha256").update(uniqueString).digest("hex");
-
-	// Use configurable length of the hash (default 32 characters = 128 bits)
-	// A length of 32 gives us 2^128 possible values, virtually eliminating any collision chance
-	// While still keeping the filename reasonable and valid in Linux filesystems
-	return hash.substring(0, HASH_LENGTH);
-}
-
-// Helper function to apply template
-function applyTemplate(template: string, data: Record<string, string>): string {
-	return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-		return data[key] !== undefined ? data[key] : match;
-	});
-}
-
 // Helper to send email
 async function sendEmail(pageUrl: string, title: string): Promise<void> {
 	if (!SMTP_HOST || !EMAIL_FROM || !EMAIL_TO) {
@@ -167,7 +145,7 @@ app.post("/new", (req: Request, res: Response) => {
 			return;
 		}
 
-		const pageId = generatePageId();
+		const pageId = generatePageId(HASH_LENGTH);
 		const filename = `page-${pageId}.html`;
 		const filePath = path.join(dataDir, filename);
 
