@@ -41,12 +41,11 @@ if (process.env.HASH_LENGTH) {
 // In Docker: /etc/email-page/data
 // In local dev: ./data
 const dataDir: string =
-	process.env.DATA_DIR ||
-	(process.env.NODE_ENV === "test"
+	process.env.NODE_ENV === "test"
 		? defaults.dataDirectory
 		: process.env.NODE_ENV === "production"
 			? "/etc/email-page/data"
-			: defaults.dataDirectory);
+			: defaults.dataDirectory;
 
 // Set template directory and file - use environment variable or default
 const templateDir: string = process.env.TEMPLATE_DIR || path.join(__dirname, "..", "templates");

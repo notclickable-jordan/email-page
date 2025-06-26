@@ -25,7 +25,6 @@ ENV PORT=3000 \
     DOMAIN_NAME="localhost:3000" \
     EMAIL_FROM="" \
     EMAIL_TO="" \
-    DATA_DIR="/etc/email-page/data" \
     HASH_LENGTH="32"
 
 # Run the application

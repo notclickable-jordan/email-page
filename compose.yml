@@ -1,19 +1,19 @@
-version: "3"
-
 services:
-    emailpage:
-        build: .
+    email-page:
+        image: jordanroher/email-page
+        container_name: email-page
         ports:
-            - "3000:3000"
+            - 3000:3000
         environment:
-            - PORT=3000
-            - SMTP_HOST=${SMTP_HOST}
-            - SMTP_PORT=${SMTP_PORT:-587}
-            - SMTP_USER=${SMTP_USER}
-            - SMTP_PASS=${SMTP_PASS}
-            - DOMAIN_NAME=${DOMAIN_NAME:-localhost:3000}
-            - EMAIL_FROM=${EMAIL_FROM}
-            - EMAIL_TO=${EMAIL_TO}
-            - DATA_DIR=/etc/email-page/data
+            - SMTP_HOST=smtp.example.com
+            - SMTP_PORT=587
+            - SMTP_USER=username
+            - SMTP_PASS=password
+            - DOMAIN_NAME=email-page.example.com
+            - EMAIL_FROM=email-page@example.com
+            - EMAIL_TO=notifications@example.com
         volumes:
-            - ./data:/etc/email-page/data
+            - data:/etc/email-page/data
+
+volumes:
+    data:
