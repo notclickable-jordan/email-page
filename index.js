@@ -17,14 +17,21 @@ const EMAIL_TO = process.env.EMAIL_TO;
 
 // Set data directory - use environment variable or default
 // In Docker: /etc/email-page/data
-// In local dev/test: ./data
-const dataDir = process.env.DATA_DIR || (process.env.NODE_ENV === "test" ? "./data" : "/etc/email-page/data");
+// In local dev: ./data
+const dataDir =
+	process.env.DATA_DIR ||
+	(process.env.NODE_ENV === "test"
+		? "./data"
+		: process.env.NODE_ENV === "production"
+			? "/etc/email-page/data"
+			: "./data");
 
 // Ensure data directory exists
 try {
 	if (!fs.existsSync(dataDir)) {
 		fs.mkdirSync(dataDir, { recursive: true });
 	}
+	console.log(`Data directory created/confirmed at: ${dataDir}`);
 } catch (error) {
 	console.error(`Failed to create data directory at ${dataDir}:`, error.message);
 	// Don't throw in production, just log the error
