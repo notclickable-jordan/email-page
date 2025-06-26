@@ -15,6 +15,19 @@ const DOMAIN_NAME = process.env.DOMAIN_NAME || "localhost:" + port;
 const EMAIL_FROM = process.env.EMAIL_FROM;
 const EMAIL_TO = process.env.EMAIL_TO;
 
+// Set the hash length for page IDs (16-256 characters), default to 32
+let HASH_LENGTH = 32;
+if (process.env.HASH_LENGTH) {
+	const parsedLength = parseInt(process.env.HASH_LENGTH, 10);
+	if (!isNaN(parsedLength) && parsedLength >= 16 && parsedLength <= 256) {
+		HASH_LENGTH = parsedLength;
+	} else {
+		console.warn(
+			`Invalid HASH_LENGTH value: ${process.env.HASH_LENGTH}. Must be a number between 16 and 256. Using default value of 32.`
+		);
+	}
+}
+
 // Set data directory - use environment variable or default
 // In Docker: /etc/email-page/data
 // In local dev: ./data
@@ -90,10 +103,10 @@ function generatePageId() {
 	// Generate SHA-256 hash
 	const hash = crypto.createHash("sha256").update(uniqueString).digest("hex");
 
-	// Use 32 characters of the hash (128 bits)
-	// This gives us 2^128 possible values, virtually eliminating any collision chance
+	// Use configurable length of the hash (default 32 characters = 128 bits)
+	// A length of 32 gives us 2^128 possible values, virtually eliminating any collision chance
 	// While still keeping the filename reasonable and valid in Linux filesystems
-	return hash.substring(0, 32);
+	return hash.substring(0, HASH_LENGTH);
 }
 
 // Helper function to apply template
@@ -212,6 +225,7 @@ if (require.main === module) {
 		console.log(`Email page server running on port ${port}`);
 		console.log(`Data directory: ${dataDir}`);
 		console.log(`Template file: ${templatePath}`);
+		console.log(`Hash length for page IDs: ${HASH_LENGTH} characters`);
 	});
 }
 
