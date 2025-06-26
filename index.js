@@ -26,6 +26,11 @@ const dataDir =
 			? "/etc/email-page/data"
 			: "./data");
 
+// Set template directory and file - use environment variable or default
+const templateDir = process.env.TEMPLATE_DIR || path.join(__dirname, "templates");
+const templateFile = process.env.TEMPLATE_FILE || "default.html";
+const templatePath = path.join(templateDir, templateFile);
+
 // Ensure data directory exists
 try {
 	if (!fs.existsSync(dataDir)) {
@@ -38,6 +43,37 @@ try {
 	if (process.env.NODE_ENV === "test") {
 		throw error;
 	}
+}
+
+// Ensure template directory exists
+try {
+	if (!fs.existsSync(templateDir)) {
+		fs.mkdirSync(templateDir, { recursive: true });
+	}
+	console.log(`Template directory created/confirmed at: ${templateDir}`);
+
+	// Check if template file exists and throw error if it doesn't
+	if (!fs.existsSync(templatePath)) {
+		const errorMessage = `Template file not found at ${templatePath}. Please create the template file before running the application.`;
+		console.error(errorMessage);
+		throw new Error(errorMessage);
+	}
+	console.log(`Using template file: ${templatePath}`);
+} catch (error) {
+	console.error(`Template setup error: ${error.message}`);
+	// Always throw for template issues as they are critical for functionality
+	throw error;
+}
+
+// Load the HTML template
+let htmlTemplate;
+try {
+	htmlTemplate = fs.readFileSync(templatePath, "utf8");
+	console.log("HTML template loaded successfully");
+} catch (error) {
+	console.error(`Failed to load HTML template: ${error.message}`);
+	// Don't use fallback, consider template loading as critical
+	throw error;
 }
 
 // Middleware
@@ -55,6 +91,13 @@ function generateTimestamp() {
 	const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
 
 	return `${year}-${month}-${day}-${hours}${minutes}${seconds}${milliseconds}`;
+}
+
+// Helper function to apply template
+function applyTemplate(template, data) {
+	return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+		return data[key] !== undefined ? data[key] : match;
+	});
 }
 
 // Helper to send email
@@ -113,33 +156,14 @@ app.post("/new", (req, res) => {
 		if (isHTML) {
 			htmlContent = message;
 		} else {
-			htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 20px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #333;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-    }
-  </style>
-</head>
-<body>
-  <h1>${title}</h1>
-  <div>${message.replace(/\n/g, "<br/>")}</div>
-</body>
-</html>`;
+			// Convert newlines to <br/> tags before applying the template
+			const formattedMessage = message.replace(/\n/g, "<br/>");
+
+			// Apply template with title and formatted message
+			htmlContent = applyTemplate(htmlTemplate, {
+				title: title,
+				message: formattedMessage,
+			});
 		}
 
 		// Write the HTML file
@@ -185,6 +209,7 @@ if (require.main === module) {
 	app.listen(port, () => {
 		console.log(`Email page server running on port ${port}`);
 		console.log(`Data directory: ${dataDir}`);
+		console.log(`Template file: ${templatePath}`);
 	});
 }
 
