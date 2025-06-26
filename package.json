@@ -1,7 +1,7 @@
 {
 	"name": "email-page",
 	"version": "0.1.0",
-	"description": "Turn Apprise notifications into creates HTML pages and sends email links to them",
+	"description": "Turn JSON requests into HTML pages and send email links to them",
 	"main": "dist/index.js",
 	"type": "commonjs",
 	"scripts": {
