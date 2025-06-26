@@ -6,8 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "npm run build && node dist/index.js",
-		"dev": "tsc --watch & node --watch dist/index.js",
-		"test": "jest"
+		"dev": "tsc --watch & node --watch dist/index.js"
 	},
 	"keywords": [],
 	"author": "",
@@ -23,9 +22,7 @@
 		"@types/express": "^5.0.3",
 		"@types/node": "^24.0.4",
 		"@types/nodemailer": "^6.4.17",
-		"jest": "^30.0.3",
 		"mock-fs": "^5.5.0",
-		"supertest": "^7.1.1",
 		"typescript": "^5.8.3"
 	},
 	"prettier": {
