@@ -84,24 +84,25 @@ For example, `/2025-01-02-143376` will serve the file `/etc/email-page/data/page
    Create a `docker-compose.yml` file with the following content:
 
 ```yaml
-version: "3"
-
 services:
-    emailpage:
-        build: .
+    email-page:
+        image: jordanroher/email-page
+        container_name: email-page
         ports:
-            - "3000:3000"
+            - 3000:3000
         environment:
-            - PORT=3000
             - SMTP_HOST=smtp.example.com
             - SMTP_PORT=587
-            - SMTP_USER=user@example.com
+            - SMTP_USER=username
             - SMTP_PASS=password
-            - DOMAIN_NAME=example.com
-            - EMAIL_FROM=notifications@example.com
-            - EMAIL_TO=recipient@example.com
+            - DOMAIN_NAME=email-page.example.com
+            - EMAIL_FROM=email-page@example.com
+            - EMAIL_TO=notifications@example.com
         volumes:
-            - ./data:/etc/email-page/data
+            - data:/etc/email-page/data
+
+volumes:
+    data:
 ```
 
 Then run:
