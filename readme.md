@@ -11,16 +11,17 @@ A Docker service that creates HTML pages from POST requests and sends email link
 
 ## Environment Variables
 
-| Variable    | Description                     | Default              |
-| ----------- | ------------------------------- | -------------------- |
-| PORT        | Server port                     | 3000                 |
-| SMTP_HOST   | SMTP server host                | (required for email) |
-| SMTP_PORT   | SMTP server port                | 25                   |
-| SMTP_USER   | SMTP username                   | (optional)           |
-| SMTP_PASS   | SMTP password                   | (optional)           |
-| DOMAIN_NAME | Domain name for generated links | localhost:3000       |
-| EMAIL_FROM  | Sender email address            | (required for email) |
-| EMAIL_TO    | Recipient email address         | (required for email) |
+| Variable    | Description                           | Default              |
+| ----------- | ------------------------------------- | -------------------- |
+| PORT        | Server port                           | 3000                 |
+| SMTP_HOST   | SMTP server host                      | (required for email) |
+| SMTP_PORT   | SMTP server port                      | 25                   |
+| SMTP_USER   | SMTP username                         | (optional)           |
+| SMTP_PASS   | SMTP password                         | (optional)           |
+| DOMAIN_NAME | Domain name for generated links       | localhost:3000       |
+| EMAIL_FROM  | Sender email address                  | (required for email) |
+| EMAIL_TO    | Recipient email address               | (required for email) |
+| DATA_DIR    | Directory where HTML pages are stored | /etc/email-page/data |
 
 ## API Endpoints
 

@@ -1,18 +1,19 @@
-version: '3'
+version: "3"
 
 services:
-  emailpage:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - DOMAIN_NAME=${DOMAIN_NAME:-localhost:3000}
-      - EMAIL_FROM=${EMAIL_FROM}
-      - EMAIL_TO=${EMAIL_TO}
-    volumes:
-      - ./data:/etc/email-page/data
+    emailpage:
+        build: .
+        ports:
+            - "3000:3000"
+        environment:
+            - PORT=3000
+            - SMTP_HOST=${SMTP_HOST}
+            - SMTP_PORT=${SMTP_PORT:-587}
+            - SMTP_USER=${SMTP_USER}
+            - SMTP_PASS=${SMTP_PASS}
+            - DOMAIN_NAME=${DOMAIN_NAME:-localhost:3000}
+            - EMAIL_FROM=${EMAIL_FROM}
+            - EMAIL_TO=${EMAIL_TO}
+            - DATA_DIR=/etc/email-page/data
+        volumes:
+            - ./data:/etc/email-page/data

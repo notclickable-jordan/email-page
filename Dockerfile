@@ -24,7 +24,8 @@ ENV PORT=3000 \
     SMTP_PASS="" \
     DOMAIN_NAME="localhost:3000" \
     EMAIL_FROM="" \
-    EMAIL_TO=""
+    EMAIL_TO="" \
+    DATA_DIR="/etc/email-page/data"
 
 # Run the application
 CMD ["node", "index.js"]
