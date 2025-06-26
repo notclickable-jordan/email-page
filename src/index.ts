@@ -1,24 +1,31 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
-import nodemailer from "nodemailer";
+
 import fs from "fs";
 import path from "path";
-import { applyTemplate, generatePageId } from "./helpers";
+import { applyTemplate, generatePageId, sendEmail } from "./helpers";
+import { defaults, IConfig } from "./types";
 
 const app = express();
-const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : defaults.port;
 
 // Environment variables
-const SMTP_HOST: string = process.env.SMTP_HOST || "";
-const SMTP_PORT: string = process.env.SMTP_PORT || "";
-const SMTP_USER: string = process.env.SMTP_USER || "";
-const SMTP_PASS: string = process.env.SMTP_PASS || "";
-const DOMAIN_NAME: string = process.env.DOMAIN_NAME || `localhost:${port}`;
-const EMAIL_FROM: string = process.env.EMAIL_FROM || "";
-const EMAIL_TO: string = process.env.EMAIL_TO || "";
+const config: IConfig = {
+	smtp: {
+		host: process.env.SMTP_HOST || "",
+		port: process.env.SMTP_PORT || "",
+		user: process.env.SMTP_USER || "",
+		pass: process.env.SMTP_PASS || "",
+	},
+	domain: process.env.DOMAIN_NAME || `localhost:${port}`,
+	email: {
+		from: process.env.EMAIL_FROM || "",
+		to: process.env.EMAIL_TO || "",
+	},
+};
 
 // Set the hash length for page IDs (16-256 characters), default to 32
-let HASH_LENGTH: number = 32;
+let HASH_LENGTH: number = defaults.hashLength;
 if (process.env.HASH_LENGTH) {
 	const parsedLength = parseInt(process.env.HASH_LENGTH, 10);
 	if (!isNaN(parsedLength) && parsedLength >= 16 && parsedLength <= 256) {
@@ -36,10 +43,10 @@ if (process.env.HASH_LENGTH) {
 const dataDir: string =
 	process.env.DATA_DIR ||
 	(process.env.NODE_ENV === "test"
-		? "./data"
+		? defaults.dataDirectory
 		: process.env.NODE_ENV === "production"
 			? "/etc/email-page/data"
-			: "./data");
+			: defaults.dataDirectory);
 
 // Set template directory and file - use environment variable or default
 const templateDir: string = process.env.TEMPLATE_DIR || path.join(__dirname, "..", "templates");
@@ -94,42 +101,6 @@ try {
 // Middleware
 app.use(bodyParser.json());
 
-// Helper to send email
-async function sendEmail(pageUrl: string, title: string): Promise<void> {
-	if (!SMTP_HOST || !EMAIL_FROM || !EMAIL_TO) {
-		console.log("SMTP configuration incomplete, skipping email send");
-		return;
-	}
-
-	const transporter = nodemailer.createTransport({
-		host: SMTP_HOST,
-		port: SMTP_PORT ? parseInt(SMTP_PORT, 10) : 25,
-		secure: SMTP_PORT === "465",
-		auth:
-			SMTP_USER && SMTP_PASS
-				? {
-						user: SMTP_USER,
-						pass: SMTP_PASS,
-					}
-				: undefined,
-	});
-
-	const mailOptions = {
-		from: EMAIL_FROM,
-		to: EMAIL_TO,
-		subject: `New page created: ${title}`,
-		text: `A new page has been created titled "${title}". View it at: ${pageUrl}`,
-		html: `<p>A new page has been created titled <strong>"${title}"</strong>.</p><p>View it at: <a href="${pageUrl}">${pageUrl}</a></p>`,
-	};
-
-	try {
-		const info = await transporter.sendMail(mailOptions);
-		console.log("Email sent:", info.messageId);
-	} catch (error) {
-		console.error("Error sending email:", error);
-	}
-}
-
 interface PageRequest {
 	title?: string;
 	message?: string;
@@ -171,10 +142,10 @@ app.post("/new", (req: Request, res: Response) => {
 		console.log(`Page created: ${filename}`);
 
 		// Generate page URL
-		const pageUrl = `http://${DOMAIN_NAME}/${pageId}`;
+		const pageUrl = `http://${config.domain}/${pageId}`;
 
 		// Send email with link to the page
-		sendEmail(pageUrl, title);
+		sendEmail(config, pageUrl, title);
 
 		// Return success with 204 No Content
 		res.status(204).end();

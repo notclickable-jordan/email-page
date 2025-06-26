@@ -1,7 +1,7 @@
 {
-	"name": "emailpage",
+	"name": "email-page",
 	"version": "1.0.0",
-	"description": "A service that creates HTML pages and sends email links to them",
+	"description": "Turn Apprise notifications into creates HTML pages and sends email links to them",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc",
@@ -9,8 +9,8 @@
 		"dev": "tsc --watch & node --watch dist/index.js"
 	},
 	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"author": "Jordan Roher",
+	"license": "MIT",
 	"dependencies": {
 		"body-parser": "^2.2.0",
 		"express": "^5.1.0",
