@@ -79,18 +79,21 @@ try {
 // Middleware
 app.use(bodyParser.json());
 
-// Helper to generate timestamp for filenames
-function generateTimestamp() {
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, "0");
-	const day = String(now.getDate()).padStart(2, "0");
-	const hours = String(now.getHours()).padStart(2, "0");
-	const minutes = String(now.getMinutes()).padStart(2, "0");
-	const seconds = String(now.getSeconds()).padStart(2, "0");
-	const milliseconds = String(now.getMilliseconds()).padStart(3, "0");
+// Helper to generate hash-based IDs for filenames
+function generatePageId() {
+	const crypto = require("crypto");
 
-	return `${year}-${month}-${day}-${hours}${minutes}${seconds}${milliseconds}`;
+	// Create a string with current date and a random value to ensure uniqueness
+	const now = new Date();
+	const uniqueString = now.toISOString() + Math.random().toString();
+
+	// Generate SHA-256 hash
+	const hash = crypto.createHash("sha256").update(uniqueString).digest("hex");
+
+	// Use 32 characters of the hash (128 bits)
+	// This gives us 2^128 possible values, virtually eliminating any collision chance
+	// While still keeping the filename reasonable and valid in Linux filesystems
+	return hash.substring(0, 32);
 }
 
 // Helper function to apply template
@@ -145,8 +148,8 @@ app.post("/new", (req, res) => {
 			return res.status(400).send({ error: "Title and message are required" });
 		}
 
-		const timestamp = generateTimestamp();
-		const filename = `page-${timestamp}.html`;
+		const pageId = generatePageId();
+		const filename = `page-${pageId}.html`;
 		const filePath = path.join(dataDir, filename);
 
 		// Check if message is HTML
@@ -171,7 +174,6 @@ app.post("/new", (req, res) => {
 		console.log(`Page created: ${filename}`);
 
 		// Generate page URL
-		const pageId = timestamp;
 		const pageUrl = `http://${DOMAIN_NAME}/${pageId}`;
 
 		// Send email with link to the page
@@ -214,4 +216,4 @@ if (require.main === module) {
 }
 
 // Export for testing
-module.exports = { app, dataDir, generateTimestamp, sendEmail };
+module.exports = { app, dataDir, generatePageId, sendEmail };
