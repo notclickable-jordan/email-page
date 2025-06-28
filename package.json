@@ -7,7 +7,6 @@
 	"scripts": {
 		"build": "tsc && npm run tailwind",
 		"start": "npm run build && node dist/index.js",
-		"dev": "npm run tailwind && concurrently \"tsc --watch\" \"npx @tailwindcss/cli -i ./src/tailwind.css -o ./public/css/styles.css --watch\" \"node --watch dist/index.js\"",
 		"tailwind": "npx @tailwindcss/cli -i ./src/tailwind.css -o ./public/css/styles.css --minify"
 	},
 	"keywords": [],
@@ -20,7 +19,6 @@
 		"@types/nodemailer": "^6.4.17",
 		"autoprefixer": "^10.4.21",
 		"body-parser": "^2.2.0",
-		"concurrently": "^9.2.0",
 		"express": "^5.1.0",
 		"mock-fs": "^5.5.0",
 		"nodemailer": "^7.0.3",
