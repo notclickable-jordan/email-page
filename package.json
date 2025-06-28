@@ -5,9 +5,9 @@
 	"main": "dist/index.js",
 	"type": "commonjs",
 	"scripts": {
-		"build": "tsc",
-		"start": "npm run build && node dist/index.js",
-		"dev": "tsc --watch & node --watch dist/index.js"
+		"build": "tsc && npm run tailwind",
+		"start": "tsc --watch & npx tailwindcss -i ./src/tailwind.css -o ./public/css/styles.css --watch & node --watch dist/index.js",
+		"tailwind": "npx tailwindcss -i ./src/tailwind.css -o ./public/css/styles.css --minify"
 	},
 	"keywords": [],
 	"author": "Jordan Roher",

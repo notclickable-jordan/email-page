@@ -51,6 +51,8 @@ const dataDir: string =
 const templateDir: string = process.env.TEMPLATE_DIR || path.join(__dirname, "..", "templates");
 const templateFile: string = process.env.TEMPLATE_FILE || "default.html";
 const templatePath: string = path.join(templateDir, templateFile);
+const homeTemplatePath: string = path.join(templateDir, "home.html");
+const notFoundTemplatePath: string = path.join(templateDir, "404.html");
 
 // Ensure data directory exists
 try {
@@ -73,26 +75,39 @@ try {
 	}
 	console.log(`Template directory created/confirmed at: ${templateDir}`);
 
-	// Check if template file exists and throw error if it doesn't
-	if (!fs.existsSync(templatePath)) {
-		const errorMessage = `Template file not found at ${templatePath}. Please create the template file before running the application.`;
-		console.error(errorMessage);
-		throw new Error(errorMessage);
+	// Check if required template files exist and throw error if they don't
+	const requiredTemplates = [
+		{ path: templatePath, name: "default" },
+		{ path: homeTemplatePath, name: "home" },
+		{ path: notFoundTemplatePath, name: "404" },
+	];
+
+	for (const template of requiredTemplates) {
+		if (!fs.existsSync(template.path)) {
+			const errorMessage = `Template file not found at ${template.path}. Please create the template file before running the application.`;
+			console.error(errorMessage);
+			throw new Error(errorMessage);
+		}
+		console.log(`Using ${template.name} template: ${template.path}`);
 	}
-	console.log(`Using template file: ${templatePath}`);
 } catch (error) {
 	console.error(`Template setup error: ${(error as Error).message}`);
 	// Always throw for template issues as they are critical for functionality
 	throw error;
 }
 
-// Load the HTML template
+// Load the HTML templates
 let htmlTemplate: string;
+let homeTemplate: string;
+let notFoundTemplate: string;
+
 try {
 	htmlTemplate = fs.readFileSync(templatePath, "utf8");
-	console.log("HTML template loaded successfully");
+	homeTemplate = fs.readFileSync(homeTemplatePath, "utf8");
+	notFoundTemplate = fs.readFileSync(notFoundTemplatePath, "utf8");
+	console.log("HTML templates loaded successfully");
 } catch (error) {
-	console.error(`Failed to load HTML template: ${(error as Error).message}`);
+	console.error(`Failed to load HTML templates: ${(error as Error).message}`);
 	// Don't use fallback, consider template loading as critical
 	throw error;
 }
@@ -100,25 +115,28 @@ try {
 // Middleware
 app.use(bodyParser.json());
 
+// Serve static files from the public directory
+const publicDir = path.join(__dirname, "..", "public");
+// Ensure public directory exists
+try {
+	if (!fs.existsSync(publicDir)) {
+		fs.mkdirSync(publicDir, { recursive: true });
+		console.log(`Public directory created at: ${publicDir}`);
+	}
+	console.log(`Public directory confirmed at: ${publicDir}`);
+} catch (error) {
+	console.error(`Failed to create public directory at ${publicDir}:`, (error as Error).message);
+}
+app.use(express.static(publicDir));
+
 // Root endpoint to display application info
 app.get("/", (req: Request, res: Response) => {
-	const html = `
-<!doctype html>
-<html>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Email Page</title>
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="font-sans leading-relaxed m-0 p-5 max-w-2xl mx-auto text-center">
-		<h1 class="text-gray-800 border-b border-gray-200 pb-2.5 text-3xl font-bold">Email Page</h1>
-		<div class="text-gray-600 text-lg mt-5">Running on: ${config.domain}</div>
-	</body>
-</html>`;
+	const content = applyTemplate(homeTemplate, {
+		domain: config.domain,
+	});
 
 	res.setHeader("Content-Type", "text/html");
-	res.send(html);
+	res.send(content);
 });
 
 interface PageRequest {
@@ -158,6 +176,7 @@ app.post("/new", (req: Request, res: Response) => {
 		// Write the HTML file
 		fs.writeFileSync(filePath, htmlContent);
 		console.log(`Page created: ${filename}`);
+		console.log(`Page URL: http://${config.domain}/${pageId}`);
 
 		// Generate page URL
 		const pageUrl = `http://${config.domain}/${pageId}`;
@@ -170,6 +189,7 @@ app.post("/new", (req: Request, res: Response) => {
 	} catch (error) {
 		console.error("Error creating page:", error);
 		res.status(500).json({ error: "Failed to create page" });
+		console.log(`----------`);
 	}
 });
 
@@ -193,28 +213,10 @@ app.get("/:pageId", (req: Request, res: Response) => {
 });
 
 // 404 handler for any route that doesn't match
-app.use((req: Request, res: Response) => {
-	const html = `
-<!doctype html>
-<html>
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>404 - Page Not Found</title>
-		<script src="https://cdn.tailwindcss.com"></script>
-	</head>
-	<body class="font-sans leading-relaxed m-0 p-5 max-w-2xl mx-auto text-center">
-		<h1 class="text-gray-800 border-b border-gray-200 pb-2.5 text-3xl font-bold">404 - Page Not Found</h1>
-		<div class="text-gray-600 text-lg mt-5">No page found at this address</div>
-		<div class="mt-8">
-			<a href="/" class="text-blue-600 hover:underline">Return to Home</a>
-		</div>
-	</body>
-</html>`;
-
+app.use((_: Request, res: Response) => {
 	res.status(404);
 	res.setHeader("Content-Type", "text/html");
-	res.send(html);
+	res.send(notFoundTemplate);
 });
 
 // Start the server if this file is run directly
@@ -224,7 +226,8 @@ if (require.main === module) {
 		console.log(`Data directory: ${dataDir}`);
 		console.log(`Template file: ${templatePath}`);
 		console.log(`Hash length for page IDs: ${HASH_LENGTH} characters`);
-		console.log(`Ready to accept requests at http://${config.domain}:${port}/new`);
+		console.log(`Ready to accept requests at http://${config.domain}/new`);
+		console.log(`----------`);
 	});
 }
 
