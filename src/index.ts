@@ -100,6 +100,47 @@ try {
 // Middleware
 app.use(bodyParser.json());
 
+// Root endpoint to display application info
+app.get("/", (req: Request, res: Response) => {
+	const html = `
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Email Page</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				line-height: 1.6;
+				margin: 0;
+				padding: 20px;
+				max-width: 800px;
+				margin: 0 auto;
+				text-align: center;
+			}
+			h1 {
+				color: #333;
+				border-bottom: 1px solid #eee;
+				padding-bottom: 10px;
+			}
+			.domain {
+				color: #666;
+				font-size: 18px;
+				margin-top: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Email Page</h1>
+		<div class="domain">Running on: ${config.domain}</div>
+	</body>
+</html>`;
+
+	res.setHeader("Content-Type", "text/html");
+	res.send(html);
+});
+
 interface PageRequest {
 	title?: string;
 	message?: string;
@@ -171,6 +212,61 @@ app.get("/:pageId", (req: Request, res: Response) => {
 	}
 });
 
+// 404 handler for any route that doesn't match
+app.use((req: Request, res: Response) => {
+	const html = `
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>404 - Page Not Found</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				line-height: 1.6;
+				margin: 0;
+				padding: 20px;
+				max-width: 800px;
+				margin: 0 auto;
+				text-align: center;
+			}
+			h1 {
+				color: #333;
+				border-bottom: 1px solid #eee;
+				padding-bottom: 10px;
+			}
+			.message {
+				color: #666;
+				font-size: 18px;
+				margin-top: 20px;
+			}
+			.home-link {
+				margin-top: 30px;
+			}
+			a {
+				color: #0066cc;
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>404 - Page Not Found</h1>
+		<div class="message">No page found at this address</div>
+		<div class="home-link">
+			<a href="/">Return to Home</a>
+		</div>
+	</body>
+</html>`;
+
+	res.status(404);
+	res.setHeader("Content-Type", "text/html");
+	res.send(html);
+});
+
 // Start the server if this file is run directly
 if (require.main === module) {
 	app.listen(port, () => {
@@ -178,7 +274,7 @@ if (require.main === module) {
 		console.log(`Data directory: ${dataDir}`);
 		console.log(`Template file: ${templatePath}`);
 		console.log(`Hash length for page IDs: ${HASH_LENGTH} characters`);
-		console.log(`Ready to accept requests at http://${config.domain}:{port}/new`);
+		console.log(`Ready to accept requests at http://${config.domain}:${port}/new`);
 	});
 }
 
