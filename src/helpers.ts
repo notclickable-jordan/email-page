@@ -47,9 +47,9 @@ export async function sendEmail(config: IConfig, pageUrl: string, title: string)
 	const mailOptions = {
 		from: config.email.from,
 		to: config.email.to,
-		subject: `New page created: ${title}`,
-		text: `A new page has been created titled "${title}". View it at: ${pageUrl}`,
-		html: `<p>A new page has been created titled <strong>"${title}"</strong>.</p><p>View it at: <a href="${pageUrl}">${pageUrl}</a></p>`,
+		subject: title,
+		text: `${title}\n\nView at: ${pageUrl}`,
+		html: `<p><strong>"${title}"</strong>.</p><p>View at: <a href="${pageUrl}">${pageUrl}</a></p>`,
 	};
 
 	try {

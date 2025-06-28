@@ -122,10 +122,8 @@ app.post("/new", (req: Request, res: Response) => {
 		// Check if message is HTML
 		const isHTML = message.toLowerCase().includes("<html");
 
-		let htmlContent: string;
-		if (isHTML) {
-			htmlContent = message;
-		} else {
+		let htmlContent = message;
+		if (!isHTML) {
 			// Convert newlines to <br/> tags before applying the template
 			const formattedMessage = message.replace(/\n/g, "<br/>");
 
@@ -180,6 +178,7 @@ if (require.main === module) {
 		console.log(`Data directory: ${dataDir}`);
 		console.log(`Template file: ${templatePath}`);
 		console.log(`Hash length for page IDs: ${HASH_LENGTH} characters`);
+		console.log(`Ready to accept requests at http://${config.domain}:{port}/new`);
 	});
 }
 
