@@ -109,31 +109,11 @@ app.get("/", (req: Request, res: Response) => {
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Email Page</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				line-height: 1.6;
-				margin: 0;
-				padding: 20px;
-				max-width: 800px;
-				margin: 0 auto;
-				text-align: center;
-			}
-			h1 {
-				color: #333;
-				border-bottom: 1px solid #eee;
-				padding-bottom: 10px;
-			}
-			.domain {
-				color: #666;
-				font-size: 18px;
-				margin-top: 20px;
-			}
-		</style>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
-	<body>
-		<h1>Email Page</h1>
-		<div class="domain">Running on: ${config.domain}</div>
+	<body class="font-sans leading-relaxed m-0 p-5 max-w-2xl mx-auto text-center">
+		<h1 class="text-gray-800 border-b border-gray-200 pb-2.5 text-3xl font-bold">Email Page</h1>
+		<div class="text-gray-600 text-lg mt-5">Running on: ${config.domain}</div>
 	</body>
 </html>`;
 
@@ -221,43 +201,13 @@ app.use((req: Request, res: Response) => {
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>404 - Page Not Found</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				line-height: 1.6;
-				margin: 0;
-				padding: 20px;
-				max-width: 800px;
-				margin: 0 auto;
-				text-align: center;
-			}
-			h1 {
-				color: #333;
-				border-bottom: 1px solid #eee;
-				padding-bottom: 10px;
-			}
-			.message {
-				color: #666;
-				font-size: 18px;
-				margin-top: 20px;
-			}
-			.home-link {
-				margin-top: 30px;
-			}
-			a {
-				color: #0066cc;
-				text-decoration: none;
-			}
-			a:hover {
-				text-decoration: underline;
-			}
-		</style>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
-	<body>
-		<h1>404 - Page Not Found</h1>
-		<div class="message">No page found at this address</div>
-		<div class="home-link">
-			<a href="/">Return to Home</a>
+	<body class="font-sans leading-relaxed m-0 p-5 max-w-2xl mx-auto text-center">
+		<h1 class="text-gray-800 border-b border-gray-200 pb-2.5 text-3xl font-bold">404 - Page Not Found</h1>
+		<div class="text-gray-600 text-lg mt-5">No page found at this address</div>
+		<div class="mt-8">
+			<a href="/" class="text-blue-600 hover:underline">Return to Home</a>
 		</div>
 	</body>
 </html>`;

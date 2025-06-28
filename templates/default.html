@@ -4,24 +4,10 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{{title}}</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				line-height: 1.6;
-				margin: 0;
-				padding: 20px;
-				max-width: 800px;
-				margin: 0 auto;
-			}
-			h1 {
-				color: #333;
-				border-bottom: 1px solid #eee;
-				padding-bottom: 10px;
-			}
-		</style>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
-	<body>
-		<h1>{{title}}</h1>
-		<div>{{message}}</div>
+	<body class="m-0 mx-auto p-5 max-w-2xl font-sans leading-relaxed">
+		<h1 class="pb-2.5 border-gray-200 border-b font-bold text-gray-800 text-2xl">{{title}}</h1>
+		<div class="mt-4">{{message}}</div>
 	</body>
 </html>
