@@ -21,6 +21,7 @@
 	},
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"emmet.showExpandedAbbreviation": "never",
+	"css.customData": [".vscode/tailwind.json"],
 	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
