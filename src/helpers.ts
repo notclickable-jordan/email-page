@@ -52,7 +52,7 @@ export async function sendEmail(config: IConfig, pageUrl: string, title: string)
 		to: config.email.to,
 		subject: title,
 		text: `${title}\n\nView at: ${pageUrl}`,
-		html: `<p><strong>"${title}"</strong>.</p><p>View at: <a href="${pageUrl}">${pageUrl}</a></p>`,
+		html: `<p><strong>${title}</strong>.</p><p>View at: <a href="${pageUrl}">${pageUrl}</a></p>`,
 	};
 
 	try {
@@ -110,13 +110,12 @@ export async function generateOpenGraphImage(
 		});
 		
 		// Generate screenshot
-		const imageFileName = `page-${pageId}.jpg`;
+		const imageFileName = `page-${pageId}.png`;
 		const imagePath = path.join(outputDir, imageFileName);
 		
 		await page.screenshot({
 			path: imagePath,
-			type: 'jpeg',
-			quality: 85,
+			type: 'png',
 			fullPage: false // Only capture the viewport area
 		});
 		

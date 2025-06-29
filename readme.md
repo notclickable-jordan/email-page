@@ -124,3 +124,8 @@ curl -X POST http://localhost:3000/new \
   -H "Content-Type: application/json" \
   -d '{"title":"Test Page","message":"Hello, world!\nThis is a test page."}'
 ```
+
+# Logo
+
+The Email Page logo was created in part by Vecteezy.
+- [Mail Logo Vectors by Vecteezy](https://www.vecteezy.com/free-vector/mail-logo)

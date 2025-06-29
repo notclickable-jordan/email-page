@@ -25,10 +25,7 @@ const config: IConfig = {
 	},
 };
 
-// Set whether to show incoming request details
-const SHOW_INCOMING: boolean = process.env.SHOW_INCOMING === "true";
-
-// Set the hash length for page IDs (16-256 characters), default to 32
+// Set the hash length for page IDs (16-256 characters)
 let HASH_LENGTH: number = defaults.hashLength;
 if (process.env.HASH_LENGTH) {
 	const parsedLength = parseInt(process.env.HASH_LENGTH, 10);
@@ -73,7 +70,7 @@ try {
 }
 
 // Ensure images directory exists (for Open Graph images)
-const imagesDir: string = path.join(__dirname, "..", "public", "img");
+const imagesDir: string = path.join(dataDir, "img");
 try {
 	if (!fs.existsSync(imagesDir)) {
 		fs.mkdirSync(imagesDir, { recursive: true });
@@ -162,11 +159,6 @@ interface PageRequest {
 // POST endpoint to create a new HTML page
 app.post("/new", async (req: Request, res: Response) => {
 	try {
-		// Log incoming request if SHOW_INCOMING is enabled
-		if (SHOW_INCOMING) {
-			console.log("Incoming request:", JSON.stringify(req.body, null, 2));
-		}
-
 		const { title, message } = req.body as PageRequest;
 
 		if (!title || !message) {
@@ -196,7 +188,9 @@ app.post("/new", async (req: Request, res: Response) => {
 			});
 			
 			// Parse Markdown to HTML
-			const formattedMessage = marked.parse(message) as string;
+			// Double newlines in message to separate paragraphs
+			const preformattedMessage = message.replace(/\n{2,}/g, "\n\n");
+			const formattedMessage = marked.parse(preformattedMessage) as string;
 
 			// Apply template with title, formatted message, and Open Graph data
 			htmlContent = applyTemplate(htmlTemplate, {
@@ -249,6 +243,9 @@ app.get("/:pageId", (req: Request, res: Response) => {
 		res.status(500).send("Error serving page");
 	}
 });
+
+// Serve /img/* as static files from the images directory
+app.use("/img", express.static(imagesDir));
 
 // 404 handler for any route that doesn't match
 app.use((_: Request, res: Response) => {
