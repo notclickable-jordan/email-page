@@ -40,5 +40,8 @@ ENV PORT=3000 \
     EMAIL_TO="" \
     HASH_LENGTH="32"
 
+# Ensure proper signal handling
+STOPSIGNAL SIGTERM
+
 # Run the application
 CMD ["node", "dist/index.js"]

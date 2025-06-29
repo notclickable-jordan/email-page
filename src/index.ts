@@ -256,7 +256,7 @@ app.use((_: Request, res: Response) => {
 
 // Start the server if this file is run directly
 if (require.main === module) {
-	app.listen(port, () => {
+	const server = app.listen(port, () => {
 		console.log(`Email page server running on port ${port}`);
 		console.log(`Data directory: ${dataDir}`);
 		console.log(`Template file: ${templatePath}`);
@@ -264,6 +264,19 @@ if (require.main === module) {
 		console.log(`Ready to accept requests at http://${config.domain}/new`);
 		console.log(`----------`);
 	});
+
+	// Graceful shutdown handler
+	const shutdown = (signal: string) => {
+		console.log(`${signal} received. Shutting down gracefully...`);
+		server.close(() => {
+			console.log('Server closed. Process terminated.');
+			process.exit(0);
+		});
+	};
+
+	// Listen for termination signals
+	process.on('SIGTERM', () => shutdown('SIGTERM'));
+	process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 // Export for testing
