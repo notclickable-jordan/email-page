@@ -1,5 +1,8 @@
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import puppeteer from "puppeteer";
+import path from "path";
+import fs from "fs";
 import { IConfig } from "./types";
 
 // Helper to generate hash-based IDs for filenames
@@ -57,5 +60,73 @@ export async function sendEmail(config: IConfig, pageUrl: string, title: string)
 		console.log("Email sent:", info.messageId);
 	} catch (error) {
 		console.error("Error sending email:", error);
+	}
+}
+
+// Helper to generate open graph image
+export async function generateOpenGraphImage(
+	htmlFilePath: string,
+	outputDir: string,
+	pageId: string,
+	domain: string
+): Promise<string | null> {
+	try {
+		// Launch puppeteer browser
+		const browser = await puppeteer.launch({
+			headless: true,
+			args: ['--no-sandbox', '--disable-setuid-sandbox']
+		});
+		
+		const page = await browser.newPage();
+		
+		// Set viewport to 1280x720 (16:9 aspect ratio, good for OG images)
+		await page.setViewport({ width: 1280, height: 720 });
+		
+		// Read the HTML file and CSS file
+		const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+		const cssPath = path.join(__dirname, '..', 'public', 'css', 'styles.css');
+		
+		let modifiedHtml = htmlContent;
+		
+		// If CSS file exists, embed it directly in the HTML
+		if (fs.existsSync(cssPath)) {
+			const cssContent = fs.readFileSync(cssPath, 'utf8');
+			modifiedHtml = htmlContent.replace(
+				'<link rel="stylesheet" href="../css/styles.css" />',
+				`<style>${cssContent}</style>`
+			);
+		} else {
+			// Fallback: try to use the external CSS URL
+			modifiedHtml = htmlContent.replace(
+				'href="../css/styles.css"',
+				`href="http://${domain}/css/styles.css"`
+			);
+		}
+		
+		// Load the HTML content
+		await page.setContent(modifiedHtml, { 
+			waitUntil: 'networkidle0',
+			timeout: 30000 
+		});
+		
+		// Generate screenshot
+		const imageFileName = `page-${pageId}.jpg`;
+		const imagePath = path.join(outputDir, imageFileName);
+		
+		await page.screenshot({
+			path: imagePath,
+			type: 'jpeg',
+			quality: 85,
+			fullPage: false // Only capture the viewport area
+		});
+		
+		await browser.close();
+		
+		console.log(`Open Graph image generated: ${imageFileName}`);
+		return imageFileName;
+		
+	} catch (error) {
+		console.error('Error generating Open Graph image:', error);
+		return null;
 	}
 }

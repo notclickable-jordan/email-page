@@ -4,7 +4,7 @@ import { marked } from "marked";
 
 import fs from "fs";
 import path from "path";
-import { applyTemplate, generatePageId, sendEmail } from "./helpers";
+import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage } from "./helpers";
 import { defaults, IConfig } from "./types";
 
 const app = express();
@@ -70,6 +70,17 @@ try {
 	if (process.env.NODE_ENV === "test") {
 		throw error;
 	}
+}
+
+// Ensure images directory exists (for Open Graph images)
+const imagesDir: string = path.join(__dirname, "..", "public", "img");
+try {
+	if (!fs.existsSync(imagesDir)) {
+		fs.mkdirSync(imagesDir, { recursive: true });
+	}
+	console.log(`Images directory created/confirmed at: ${imagesDir}`);
+} catch (error) {
+	console.error(`Failed to create images directory at ${imagesDir}:`, (error as Error).message);
 }
 
 // Ensure template directory exists
@@ -149,7 +160,7 @@ interface PageRequest {
 }
 
 // POST endpoint to create a new HTML page
-app.post("/new", (req: Request, res: Response) => {
+app.post("/new", async (req: Request, res: Response) => {
 	try {
 		// Log incoming request if SHOW_INCOMING is enabled
 		if (SHOW_INCOMING) {
@@ -167,6 +178,10 @@ app.post("/new", (req: Request, res: Response) => {
 		const filename = `page-${pageId}.html`;
 		const filePath = path.join(dataDir, filename);
 
+		// Generate page URL
+		const pageUrl = `http://${config.domain}/${pageId}`;
+		const ogImageUrl = `http://${config.domain}/img/page-${pageId}.jpg`;
+
 		// Check if message is HTML
 		const isHTML = message.toLowerCase().includes("<html");
 
@@ -180,20 +195,25 @@ app.post("/new", (req: Request, res: Response) => {
 			// Parse Markdown to HTML
 			const formattedMessage = marked.parse(message) as string;
 
-			// Apply template with title and formatted message
+			// Apply template with title, formatted message, and Open Graph data
 			htmlContent = applyTemplate(htmlTemplate, {
 				title: title,
 				message: formattedMessage,
+				ogImage: ogImageUrl,
+				pageUrl: pageUrl,
 			});
 		}
 
 		// Write the HTML file
 		fs.writeFileSync(filePath, htmlContent);
 		console.log(`Page created: ${filename}`);
-		console.log(`Page URL: http://${config.domain}/${pageId}`);
+		console.log(`Page URL: ${pageUrl}`);
 
-		// Generate page URL
-		const pageUrl = `http://${config.domain}/${pageId}`;
+		// Generate Open Graph image
+		const imageFileName = await generateOpenGraphImage(filePath, imagesDir, pageId, config.domain);
+		if (imageFileName) {
+			console.log(`Open Graph image created: ${imageFileName}`);
+		}
 
 		// Send email with link to the page
 		sendEmail(config, pageUrl, title);
