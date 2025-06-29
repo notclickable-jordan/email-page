@@ -1,6 +1,6 @@
 {
 	"name": "email-page",
-	"version": "0.3",
+	"version": "0.4",
 	"description": "Turn JSON requests into HTML pages and send email links to them",
 	"main": "dist/index.js",
 	"type": "commonjs",
