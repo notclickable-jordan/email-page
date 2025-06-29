@@ -216,9 +216,9 @@ app.post("/new", async (req: Request, res: Response) => {
 
 		// Send email with link to the page
 		sendEmail(config, pageUrl, title);
-
-		// Return success with 204 No Content
-		res.status(204).end();
+		
+		// Return the link to the page
+		res.status(201).json({ uri: pageUrl });
 	} catch (error) {
 		console.error("Error creating page:", error);
 		res.status(500).json({ error: "Failed to create page" });
