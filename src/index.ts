@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
+import { marked } from "marked";
 
 import fs from "fs";
 import path from "path";
@@ -171,8 +172,13 @@ app.post("/new", (req: Request, res: Response) => {
 
 		let htmlContent = message;
 		if (!isHTML) {
-			// Convert newlines to <br/> tags before applying the template
-			const formattedMessage = message.replace(/\n/g, "<br/>");
+			// Configure marked for synchronous parsing
+			marked.setOptions({
+				async: false
+			});
+			
+			// Parse Markdown to HTML
+			const formattedMessage = marked.parse(message) as string;
 
 			// Apply template with title and formatted message
 			htmlContent = applyTemplate(htmlTemplate, {
