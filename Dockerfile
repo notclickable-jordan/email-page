@@ -15,10 +15,17 @@ LABEL \
 # installs, work.
 RUN apt-get update \
     && apt-get install -y wget gnupg ca-certificates \
-    && wget -q -O /tmp/google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get install -y /tmp/google-chrome-stable_current_amd64.deb fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+    && ARCH=$(dpkg --print-architecture) \
+    && if [ "$ARCH" = "amd64" ]; then \
+        wget -q -O /tmp/google-chrome-stable_current.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        wget -q -O /tmp/google-chrome-stable_current.deb https://dl.google.com/linux/direct/google-chrome-stable_current_arm64.deb; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi \
+    && apt-get install -y /tmp/google-chrome-stable_current.deb fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
       --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/* /tmp/google-chrome-stable_current_amd64.deb
+    && rm -rf /var/lib/apt/lists/* /tmp/google-chrome-stable_current.deb
 
 # Add user so we don't need --no-sandbox
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
