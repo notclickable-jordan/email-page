@@ -1,4 +1,6 @@
 data
 dist
+.DS_Store
 node_modules
-public/css/styles.css
+public/main.css
+public/og-template.png
