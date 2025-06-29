@@ -4,7 +4,7 @@ import { marked } from "marked";
 
 import fs from "fs";
 import path from "path";
-import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, formatCurrentDateTime } from "./helpers";
+import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, formatCurrentDateTime, sanitizeTitle } from "./helpers";
 import { defaults, IConfig } from "./types";
 
 const app = express();
@@ -166,6 +166,8 @@ app.post("/new", async (req: Request, res: Response) => {
 			return;
 		}
 
+		const sanitizedTitle = sanitizeTitle(title);
+
 		const pageId = generatePageId(HASH_LENGTH);
 		const filename = `page-${pageId}.html`;
 		const filePath = path.join(dataDir, filename);
@@ -175,7 +177,7 @@ app.post("/new", async (req: Request, res: Response) => {
 		const ogImageUrl = `http://${config.domain}/img/page-${pageId}.png`;
 
 		// Check if message is HTML
-		const isHTML = message.toLowerCase().includes("<html");
+		const isHTML = message.includes("/>");
 
 		const currentDateTime = formatCurrentDateTime();
 
@@ -196,7 +198,7 @@ app.post("/new", async (req: Request, res: Response) => {
 
 			// Apply template with title, formatted message, and Open Graph data
 			htmlContent = applyTemplate(htmlTemplate, {
-				title: title,
+				title: sanitizedTitle,
 				message: formattedMessage,
 				ogImage: ogImageUrl,
 				pageUrl: pageUrl,
@@ -212,7 +214,7 @@ app.post("/new", async (req: Request, res: Response) => {
 
 		// Generate Open Graph image (non-blocking)
 		try {
-			const imageFileName = await generateOpenGraphImage(imagesDir, pageId, title);
+			const imageFileName = await generateOpenGraphImage(imagesDir, pageId, sanitizedTitle);
 			if (imageFileName) {
 				console.log(`Open Graph image created: ${imageFileName}`);
 			} else {
@@ -224,7 +226,7 @@ app.post("/new", async (req: Request, res: Response) => {
 		}
 
 		// Send email with link to the page
-		sendEmail(config, pageUrl, title);
+		sendEmail(config, pageUrl, sanitizedTitle);
 		
 		// Return the link to the page
 		res.status(201).json({ uri: pageUrl });

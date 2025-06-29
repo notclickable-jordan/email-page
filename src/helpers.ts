@@ -74,7 +74,7 @@ function escapeXml(text: string): string {
 }
 
 // Helper to sanitize title for safe usage
-function sanitizeTitle(title: string): string {
+export function sanitizeTitle(title: string): string {
 	// Remove or replace potentially problematic characters
 	return title
 		.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
@@ -99,9 +99,8 @@ export async function generateOpenGraphImage(
 		}
 		
 		// Sanitize and escape the title for safe XML/SVG usage
-		const sanitizedTitle = sanitizeTitle(title);
-		let escapedTitle = escapeXml(sanitizedTitle);
-		
+		let escapedTitle = escapeXml(title);
+
 		if (!escapedTitle.trim()) {
 			console.warn("Title is empty after sanitization, using default");
 			escapedTitle = "Untitled Page";
@@ -175,7 +174,6 @@ export async function generateOpenGraphImage(
 			const svgBuffer = Buffer.from(svgOverlay);
 			
 			console.log(`Generating Open Graph image for title: "${title}"`);
-			console.log(`Sanitized title: "${sanitizedTitle}"`);
 			console.log(`Escaped title: "${escapedTitle}"`);
 			
 			// Load template image and composite with text
@@ -190,8 +188,7 @@ export async function generateOpenGraphImage(
 				
 		} catch (svgError) {
 			console.error("SVG processing error:", svgError);
-			console.error("Original title:", title);
-			console.error("Sanitized title:", sanitizedTitle);
+			console.error("Title:", title);
 			console.error("Escaped title:", escapedTitle);
 			console.error("Generated SVG:", svgOverlay);
 			throw svgError;
