@@ -183,3 +183,26 @@ export function generateDescription(message: string, isHTML: boolean): string {
 	
 	return plainText;
 }
+
+// Helper to format current date and time
+export function formatCurrentDateTime(): string {
+	const now = new Date();
+	
+	// Format date as "January 2, 2003"
+	const dateOptions: Intl.DateTimeFormatOptions = {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	};
+	const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+	
+	// Format time as "3:45 PM"
+	const timeOptions: Intl.DateTimeFormatOptions = {
+		hour: 'numeric',
+		minute: '2-digit',
+		hour12: true
+	};
+	const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+	
+	return `${formattedDate} - ${formattedTime}`;
+}

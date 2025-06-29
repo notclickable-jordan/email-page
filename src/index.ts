@@ -4,7 +4,7 @@ import { marked } from "marked";
 
 import fs from "fs";
 import path from "path";
-import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, generateDescription } from "./helpers";
+import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, generateDescription, formatCurrentDateTime } from "./helpers";
 import { defaults, IConfig } from "./types";
 
 const app = express();
@@ -199,6 +199,7 @@ app.post("/new", async (req: Request, res: Response) => {
 				ogImage: ogImageUrl,
 				pageUrl: pageUrl,
 				description: description,
+				formattedDate: formatCurrentDateTime(),
 			});
 		}
 
