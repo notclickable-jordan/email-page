@@ -24,6 +24,9 @@ const config: IConfig = {
 	},
 };
 
+// Set whether to show incoming request details
+const SHOW_INCOMING: boolean = process.env.SHOW_INCOMING === "true";
+
 // Set the hash length for page IDs (16-256 characters), default to 32
 let HASH_LENGTH: number = defaults.hashLength;
 if (process.env.HASH_LENGTH) {
@@ -147,6 +150,11 @@ interface PageRequest {
 // POST endpoint to create a new HTML page
 app.post("/new", (req: Request, res: Response) => {
 	try {
+		// Log incoming request if SHOW_INCOMING is enabled
+		if (SHOW_INCOMING) {
+			console.log("Incoming request:", JSON.stringify(req.body, null, 2));
+		}
+
 		const { title, message } = req.body as PageRequest;
 
 		if (!title || !message) {

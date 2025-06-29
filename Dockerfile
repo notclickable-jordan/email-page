@@ -38,7 +38,8 @@ ENV PORT=3000 \
     DOMAIN_NAME="localhost:3000" \
     EMAIL_FROM="" \
     EMAIL_TO="" \
-    HASH_LENGTH="32"
+    HASH_LENGTH="32" \
+    SHOW_INCOMING="false"
 
 # Run the application
 CMD ["node", "dist/index.js"]
