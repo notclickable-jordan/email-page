@@ -160,30 +160,6 @@ export async function generateOpenGraphImage(
 	}
 }
 
-// Helper to generate description from message content
-export function generateDescription(message: string, isHTML: boolean): string {
-	if (isHTML) {
-		return "";
-	}
-	
-	// Remove any markdown formatting for a cleaner description
-	let plainText = message
-		.replace(/#+\s/g, '') // Remove markdown headers
-		.replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold formatting
-		.replace(/\*(.*?)\*/g, '$1') // Remove italic formatting
-		.replace(/`(.*?)`/g, '$1') // Remove code formatting
-		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Convert links to just text
-		.replace(/\n+/g, ' ') // Replace newlines with spaces
-		.trim();
-	
-	// Truncate to 100 characters
-	if (plainText.length > 100) {
-		return plainText.substring(0, 97) + '...';
-	}
-	
-	return plainText;
-}
-
 // Helper to format current date and time
 export function formatCurrentDateTime(): string {
 	const now = new Date();

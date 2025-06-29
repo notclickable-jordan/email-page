@@ -4,7 +4,7 @@ import { marked } from "marked";
 
 import fs from "fs";
 import path from "path";
-import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, generateDescription, formatCurrentDateTime } from "./helpers";
+import { applyTemplate, generatePageId, sendEmail, generateOpenGraphImage, formatCurrentDateTime } from "./helpers";
 import { defaults, IConfig } from "./types";
 
 const app = express();
@@ -177,8 +177,10 @@ app.post("/new", async (req: Request, res: Response) => {
 		// Check if message is HTML
 		const isHTML = message.toLowerCase().includes("<html");
 
+		const currentDateTime = formatCurrentDateTime();
+
 		// Generate description for meta tags
-		const description = generateDescription(message, isHTML);
+		const description = `New page created at ${currentDateTime}`;
 
 		let htmlContent = message;
 		if (!isHTML) {
@@ -199,7 +201,7 @@ app.post("/new", async (req: Request, res: Response) => {
 				ogImage: ogImageUrl,
 				pageUrl: pageUrl,
 				description: description,
-				formattedDate: formatCurrentDateTime(),
+				formattedDate: currentDateTime,
 			});
 		}
 
