@@ -63,6 +63,25 @@ export async function sendEmail(config: IConfig, pageUrl: string, title: string)
 	}
 }
 
+// Helper to escape XML/HTML entities for SVG
+function escapeXml(text: string): string {
+	return text
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&apos;");
+}
+
+// Helper to sanitize title for safe usage
+function sanitizeTitle(title: string): string {
+	// Remove or replace potentially problematic characters
+	return title
+		.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
+		.replace(/[\uFFFE\uFFFF]/g, '') // Remove invalid Unicode characters
+		.trim();
+}
+
 // Helper to generate open graph image
 export async function generateOpenGraphImage(
 	outputDir: string,
@@ -79,6 +98,15 @@ export async function generateOpenGraphImage(
 			return null;
 		}
 		
+		// Sanitize and escape the title for safe XML/SVG usage
+		const sanitizedTitle = sanitizeTitle(title);
+		let escapedTitle = escapeXml(sanitizedTitle);
+		
+		if (!escapedTitle.trim()) {
+			console.warn("Title is empty after sanitization, using default");
+			escapedTitle = "Untitled Page";
+		}
+		
 		// Text configuration
 		const fontSize = 60;
 		const fontFamily = "sans-serif";
@@ -90,7 +118,7 @@ export async function generateOpenGraphImage(
 		const lineHeight = fontSize * 1.2; // Standard line height multiplier
 		
 		// Break text into lines that fit within the specified width
-		const words = title.split(" ");
+		const words = escapedTitle.split(" ");
 		const lines: string[] = [];
 		let currentLine = "";
 		
@@ -136,20 +164,38 @@ export async function generateOpenGraphImage(
 		}).join("");
 		
 		const svgOverlay = `
-			<svg width="1280" height="720">
+			<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
 				${textElements}
 			</svg>
 		`;
 		
-		// Load template image and composite with text
-		await sharp(templatePath)
-			.composite([{
-				input: Buffer.from(svgOverlay),
-				top: 0,
-				left: 0
-			}])
-			.png()
-			.toFile(outputPath);
+		// Validate SVG before processing
+		try {
+			// Create SVG buffer and validate it can be parsed
+			const svgBuffer = Buffer.from(svgOverlay);
+			
+			console.log(`Generating Open Graph image for title: "${title}"`);
+			console.log(`Sanitized title: "${sanitizedTitle}"`);
+			console.log(`Escaped title: "${escapedTitle}"`);
+			
+			// Load template image and composite with text
+			await sharp(templatePath)
+				.composite([{
+					input: svgBuffer,
+					top: 0,
+					left: 0
+				}])
+				.png()
+				.toFile(outputPath);
+				
+		} catch (svgError) {
+			console.error("SVG processing error:", svgError);
+			console.error("Original title:", title);
+			console.error("Sanitized title:", sanitizedTitle);
+			console.error("Escaped title:", escapedTitle);
+			console.error("Generated SVG:", svgOverlay);
+			throw svgError;
+		}
 		
 		console.log(`Open graph image generated: ${outputPath}`);
 		return outputPath;

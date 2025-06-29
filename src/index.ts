@@ -210,10 +210,17 @@ app.post("/new", async (req: Request, res: Response) => {
 		console.log(`Page created: ${filename}`);
 		console.log(`Page URL: ${pageUrl}`);
 
-		// Generate Open Graph image
-		const imageFileName = await generateOpenGraphImage(imagesDir, pageId, title);
-		if (imageFileName) {
-			console.log(`Open Graph image created: ${imageFileName}`);
+		// Generate Open Graph image (non-blocking)
+		try {
+			const imageFileName = await generateOpenGraphImage(imagesDir, pageId, title);
+			if (imageFileName) {
+				console.log(`Open Graph image created: ${imageFileName}`);
+			} else {
+				console.warn("Open Graph image generation failed, but page creation will continue");
+			}
+		} catch (error) {
+			console.error("Error during Open Graph image generation:", error);
+			console.warn("Page creation will continue without Open Graph image");
 		}
 
 		// Send email with link to the page
