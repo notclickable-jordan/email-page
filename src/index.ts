@@ -172,7 +172,7 @@ app.post("/new", async (req: Request, res: Response) => {
 
 		// Generate page URL
 		const pageUrl = `http://${config.domain}/${pageId}`;
-		const ogImageUrl = `http://${config.domain}/img/page-${pageId}.jpg`;
+		const ogImageUrl = `http://${config.domain}/img/page-${pageId}.png`;
 
 		// Check if message is HTML
 		const isHTML = message.toLowerCase().includes("<html");
@@ -208,7 +208,7 @@ app.post("/new", async (req: Request, res: Response) => {
 		console.log(`Page URL: ${pageUrl}`);
 
 		// Generate Open Graph image
-		const imageFileName = await generateOpenGraphImage(filePath, imagesDir, pageId, config.domain);
+		const imageFileName = await generateOpenGraphImage(imagesDir, pageId, title);
 		if (imageFileName) {
 			console.log(`Open Graph image created: ${imageFileName}`);
 		}
