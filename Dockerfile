@@ -9,6 +9,13 @@ LABEL \
   org.opencontainers.image.description="Turn JSON requests into HTML pages and send email links to them" \
   org.opencontainers.image.created=$BUILD_DATE
 
+# Install dependencies for Sharp and fontconfig
+RUN apk add --no-cache \
+    fontconfig \
+    ttf-dejavu \
+    vips-dev \
+    libc6-compat
+
 # Create app directory
 WORKDIR /usr/src/app
 
